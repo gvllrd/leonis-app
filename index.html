@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Leonis V1 - Aperçu</title>
+    <style>
+        /* --- DESIGN SYSTEM LEONIS V1 --- */
+        :root {
+            --bg-color: #0F131A; /* Le Bleu Nuit très sombre de ton image */
+            --card-bg: #1A202C;  /* Un bleu un peu plus clair pour la carte */
+            --text-main: #FFFFFF;
+            --text-muted: #A0AEC0;
+            --accent: #FFFFFF;   /* Blanc pur pour le contraste fort */
+            --font-serif: 'Georgia', 'Times New Roman', serif; /* Pour le style "Leonis" */
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 500px; /* Largeur mobile idéale */
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* HEADER STYLE LEONIS */
+        .header {
+            padding: 20px 20px 10px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 32px;
+            margin: 0;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+        .header p {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+
+        /* IMAGE CONTAINER */
+        .image-wrapper {
+            margin: 10px 20px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background-color: #000;
+            position: relative;
+            padding-top: 100%; /* Ratio Carré 1:1 par défaut */
+        }
+        .image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* NETWORK BADGE */
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 10;
+        }
+        .network-badge {
+            background-color: var(--text-main);
+            color: var(--bg-color);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* CONTENT TEXT */
+        .content {
+            padding: 0 25px 100px 25px; /* Padding bas pour le bouton fixe */
+        }
+        .caption-box {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #E2E8F0;
+            white-space: pre-wrap; /* Garde les sauts de ligne */
+        }
+
+        /* BOUTON FLOTTANT FIXE EN BAS */
+        .footer-action {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, var(--bg-color) 80%, transparent);
+            display: flex;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .btn-close {
+            background-color: var(--text-main);
+            color: var(--bg-color);
+            border: none;
+            padding: 16px 30px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+            transition: transform 0.2s;
+        }
+        .btn-close:active {
+            transform: scale(0.98);
+        }
+
+        /* LOADER */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh;
+            color: var(--text-muted);
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-left-color: #FFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div class="header">
+            <h1>Leonis V1</h1>
+            <p>Ton Community Manager</p>
+        </div>
+
+        <div id="loader" class="loader-container">
+            <div class="spinner"></div>
+            <p>Chargement de l'analyse...</p>
+        </div>
+
+        <div id="content" style="display:none;">
+            <div class="image-wrapper">
+                <img id="post-image" src="" alt="Visuel Post">
+            </div>
+
+            <div class="badge-container">
+                <span id="network-badge" class="network-badge">Réseau</span>
+            </div>
+
+            <div class="content">
+                <div id="post-text" class="caption-box"></div>
+            </div>
+        </div>
+
+        <div class="footer-action">
+            <button class="btn-close" onclick="closeWindow()">X FERMER & VALIDER</button>
+        </div>
+    </div>
+
+    <script>
+        // 👇👇 COLLE TON URL MAKE SCENARIO 3 ICI 👇👇
+        const API_URL = "https://hook.eu1.make.com/d2bftkhlh5qkirvb5uia3nvhuv4ebxze"; 
+
+        const params = new URLSearchParams(window.location.search);
+        const uid = params.get('uid');
+        const network = params.get('net');
+
+        const networksPretty = {
+            'instagram': '📸 Instagram', 
+            'facebook': '📘 Facebook', 
+            'twitter': '🐦 X / Twitter',
+            'linkedin': '💼 LinkedIn', 
+            'tiktok': '🎵 TikTok', 
+            'youtube': '▶️ YouTube Shorts',
+            'pinterest': '📌 Pinterest', 
+            'google': '📍 Google Business', 
+            'threads': '🧵 Threads',
+            'snapchat': '👻 Snapchat'
+        };
+
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_URL}?uid=${uid}`);
+                const data = await response.json();
+
+                // Image
+                document.getElementById('post-image').src = data.media_url;
+                
+                // Badge Réseau
+                const networkName = networksPretty[network] || network.toUpperCase();
+                document.getElementById('network-badge').innerText = networkName;
+                
+                // Texte
+                let textContent = "Aucun texte généré pour ce réseau.";
+                if (data.networks && data.networks[network]) {
+                    textContent = data.networks[network].caption;
+                }
+                document.getElementById('post-text').innerText = textContent;
+
+                // Affichage
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+            } catch (error) {
+                document.getElementById('loader').innerHTML = "<p>Erreur de connexion. Réessaie.</p>";
+                console.error(error);
+            }
+        }
+
+        function closeWindow() {
+            // Essaie de fermer la fenêtre (marche sur mobile in-app)
+            window.close();
+            // Fallback visuel si ça ne ferme pas sur ordi
+            document.body.innerHTML = "<div style='color:white; text-align:center; padding-top:50px;'><h1>C'est tout bon ! ✅</h1><p>Tu peux fermer cette fenêtre et retourner sur Messenger.</p></div>";
+        }
+
+        if(uid && network) {
+            loadData();
+        } else {
+            document.getElementById('loader').innerHTML = "<p>Lien incomplet.</p>";
+        }
+    </script>
+
+</body>
+</html>
