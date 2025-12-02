@@ -61,15 +61,17 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             background-color: #000;
             position: relative;
-            padding-top: 100%;
+            /* Hauteur flexible pour la vidéo */
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .image-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .image-wrapper img, .image-wrapper video {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
         }
 
         .badge-container {
@@ -95,7 +97,7 @@
         }
 
         .content {
-            padding: 0 25px 100px 25px;
+            padding: 0 25px 120px 25px;
         }
         .caption-box {
             font-size: 16px;
@@ -168,7 +170,11 @@
 
         <div id="content" style="display:none;">
             <div class="image-wrapper">
-                <img id="post-image" src="" alt="Visuel Post">
+                <img id="post-image" src="" alt="Visuel Post" style="display:none;">
+                <video id="post-video" controls playsinline style="display:none;">
+                    <source id="video-source" src="" type="video/mp4">
+                    Ton navigateur ne supporte pas la vidéo.
+                </video>
             </div>
 
             <div class="badge-container">
@@ -179,76 +185,3 @@
                 <div id="post-text" class="caption-box"></div>
             </div>
         </div>
-
-        <div class="footer-action">
-            <button class="btn-close" onclick="closeWindow()">X FERMER & VALIDER</button>
-        </div>
-    </div>
-
-    <script>
-        // ✅ TON URL MAKE (Celle que tu m'as donnée)
-        const API_URL = "https://hook.eu1.make.com/d2bftkhlh5qkirvb5uia3nvhuv4ebxze"; 
-
-        const params = new URLSearchParams(window.location.search);
-        // ✅ ON UTILISE store_id AU LIEU DE uid
-        const storeId = params.get('store_id');
-        const network = params.get('net');
-
-        const networksPretty = {
-            'instagram': '📸 Instagram', 
-            'facebook': '📘 Facebook', 
-            'twitter': '🐦 X / Twitter',
-            'linkedin': '💼 LinkedIn', 
-            'tiktok': '🎵 TikTok', 
-            'youtube': '▶️ YouTube Shorts',
-            'pinterest': '📌 Pinterest', 
-            'google': '📍 Google Business', 
-            'threads': '🧵 Threads',
-            'snapchat': '👻 Snapchat'
-        };
-
-        async function loadData() {
-            try {
-                // ✅ APPEL AVEC store_id
-                const response = await fetch(`${API_URL}?store_id=${storeId}`);
-                const data = await response.json();
-
-                // Image
-                document.getElementById('post-image').src = data.media_url;
-                
-                // Badge Réseau
-                const networkName = networksPretty[network] || network.toUpperCase();
-                document.getElementById('network-badge').innerText = networkName;
-                
-                // Texte
-                let textContent = "Aucun texte généré pour ce réseau.";
-                if (data.networks && data.networks[network]) {
-                    textContent = data.networks[network].caption;
-                }
-                document.getElementById('post-text').innerText = textContent;
-
-                // Affichage
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-
-            } catch (error) {
-                document.getElementById('loader').innerHTML = "<p>Erreur de connexion. Vérifie ton ID boutique.</p>";
-                console.error(error);
-            }
-        }
-
-        function closeWindow() {
-            window.close();
-            document.body.innerHTML = "<div style='color:white; text-align:center; padding-top:50px;'><h1>C'est tout bon ! ✅</h1><p>Tu peux fermer cette fenêtre et retourner sur Messenger.</p></div>";
-        }
-
-        // ✅ VÉRIFICATION SUR storeId
-        if(storeId && network) {
-            loadData();
-        } else {
-            document.getElementById('loader').innerHTML = "<p>Lien incomplet (manque store_id ou net).</p>";
-        }
-    </script>
-
-</body>
-</html>
