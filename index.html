@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Leonis Dashboard</title>
+    <title>Validation Post</title>
     <style>
         /* --- DESIGN SYSTEM "PURE WHITE" --- */
         :root {
-            --bg-body: #F5F7FA; /* Gris très clair pour le fond de page */
-            --card-bg: #FFFFFF; /* Blanc pur pour les cartes */
-            --text-dark: #1A202C; /* Noir doux */
-            --text-grey: #718096; /* Gris texte */
-            --accent: #000000;    /* Noir pur pour les accents */
-            --shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.08); /* L'ombrage doux style screenshot */
-            --radius: 24px; /* Arrondi des cartes */
+            --bg-body: #F5F7FA;
+            --card-bg: #FFFFFF;
+            --text-dark: #1A202C;
+            --text-grey: #718096;
+            --radius: 24px;
+            --shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.08);
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
@@ -26,43 +25,44 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            padding-bottom: 100px; /* Espace pour le bouton fixe */
+            padding-bottom: 100px; /* Espace pour le bouton */
         }
 
         #app {
             width: 100%;
-            max-width: 480px; /* Format mobile strict */
+            max-width: 480px;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Espace entre les boites */
+            gap: 20px;
         }
 
-        /* --- 1. BOITE TITRE --- */
+        /* 1. TITRE (ACCROCHE) */
         .card-header {
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 20px;
+            padding: 25px;
             text-align: center;
             animation: slideUp 0.3s ease-out;
+            border-left: 5px solid #000;
         }
         .card-header h1 {
-            font-size: 24px;
+            font-size: 22px;
             margin: 0;
             font-weight: 800;
-            letter-spacing: -0.5px;
+            line-height: 1.3;
         }
         .card-header p {
+            font-size: 11px;
             color: var(--text-grey);
-            font-size: 13px;
-            margin: 5px 0 0 0;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: 600;
+            margin-top: 8px;
+            font-weight: 700;
         }
 
-        /* --- 2. BOITE DESCRIPTION --- */
+        /* 2. DESCRIPTION */
         .card-text {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -77,21 +77,20 @@
             white-space: pre-wrap;
         }
 
-        /* --- 3. BOITE HASHTAGS --- */
-        .card-hashtags {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 15px 25px;
-            color: #3182CE; /* Bleu hashtag */
+        /* 3. HASHTAGS (BOITE SEPARÉE) */
+        .card-tags {
+            background: transparent;
+            padding: 0 10px;
+            color: #3182CE; /* Bleu Hashtag */
             font-weight: 600;
             font-size: 14px;
             line-height: 1.5;
-            animation: slideUp 0.45s ease-out;
-            display: none; /* Caché par défaut si vide */
+            animation: slideUp 0.5s ease-out;
+            text-align: center;
+            display: none; /* Caché si vide */
         }
 
-        /* --- 4. BOITE MEDIA (PHOTO/VIDEO) --- */
+        /* 4. MEDIA */
         .media-container {
             width: 100%;
             border-radius: var(--radius);
@@ -100,52 +99,51 @@
             background: #000;
             position: relative;
             animation: scaleIn 0.5s ease-out;
-            /* Pas de hauteur fixe, s'adapte au contenu */
+            min-height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .media-container img, .media-container video {
             width: 100%;
             height: auto;
+            max-height: 600px;
+            object-fit: contain;
             display: block;
         }
 
-        /* --- 5. BOITE ROI & OBJECTIFS --- */
+        /* 5. STATS */
         .card-stats {
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 25px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
             animation: slideUp 0.6s ease-out;
         }
-        .stat-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .stat-row:last-child { margin-bottom: 0; }
-        
-        .stat-icon { font-size: 20px; margin-right: 15px; width: 25px; text-align: center; }
-        .stat-label { font-size: 12px; color: var(--text-grey); text-transform: uppercase; font-weight: bold; display: block; }
-        .stat-value { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+        .stat-item { text-align: center; width: 48%; }
+        .stat-label { font-size: 10px; color: var(--text-grey); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 5px;}
+        .stat-value { font-size: 14px; font-weight: 700; color: var(--text-dark); }
 
-        /* --- BOUTON FIXE --- */
+        /* BOUTON */
         .footer-action {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
             padding: 20px;
-            background: rgba(245, 247, 250, 0.9);
-            backdrop-filter: blur(10px);
+            background: rgba(245, 247, 250, 0.95);
+            backdrop-filter: blur(5px);
             display: flex;
             justify-content: center;
-            box-sizing: border-box;
             z-index: 100;
         }
         .btn-validate {
             background-color: var(--text-dark);
             color: #FFF;
             border: none;
-            padding: 18px 40px;
+            padding: 16px 40px;
             border-radius: 16px;
             font-size: 16px;
             font-weight: 700;
@@ -153,11 +151,9 @@
             max-width: 440px;
             cursor: pointer;
             box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            transition: transform 0.1s;
         }
-        .btn-validate:active { transform: scale(0.98); }
 
-        /* --- LOADER --- */
+        /* LOADER */
         .loader-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100vh;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -171,27 +167,24 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
     </style>
 </head>
 <body>
 
-    <div id="loader" class="loader-container">
-        <div class="spinner"></div>
-    </div>
+    <div id="loader" class="loader-container"><div class="spinner"></div></div>
 
     <div id="app" style="display:none;">
         
         <div class="card-header">
-            <h1>Leonis V1</h1>
-            <p>Dashboard de Validation</p>
+            <h1 id="post-title">...</h1>
+            <p id="network-subtitle">Titre du Post</p>
         </div>
 
         <div class="card-text">
             <div id="post-text" class="caption-content"></div>
         </div>
 
-        <div id="post-hashtags" class="card-hashtags"></div>
+        <div id="post-hashtags" class="card-tags"></div>
 
         <div class="media-container">
             <img id="post-image" src="" alt="Post" style="display:none;">
@@ -201,48 +194,34 @@
         </div>
 
         <div class="card-stats">
-            <div class="stat-row">
-                <div class="stat-icon">🎯</div>
-                <div>
-                    <span class="stat-label">Stratégie</span>
-                    <span id="stat-objective" class="stat-value">...</span>
-                </div>
+            <div class="stat-item">
+                <span class="stat-label">Objectif</span>
+                <span id="stat-objective" class="stat-value">...</span>
             </div>
-            <div class="stat-row">
-                <div class="stat-icon">💸</div>
-                <div>
-                    <span class="stat-label">Projection ROI</span>
-                    <span id="stat-roi" class="stat-value">...</span>
-                </div>
+            <div class="stat-item">
+                <span class="stat-label">Projection ROI</span>
+                <span id="stat-roi" class="stat-value">...</span>
             </div>
         </div>
-
     </div>
 
-    <div class="footer-action" id="footer" style="display:none;">
+    <div class="footer-action">
         <button class="btn-validate" onclick="closeWindow()">Valider & Fermer</button>
     </div>
 
     <script>
-        // 👇👇 TON URL MAKE (J'AI BIEN MIS LA BONNE CETTE FOIS) 👇👇
+        // 👇👇 TON URL MAKE (Scénario 3) 👇👇
         const API_URL = "https://hook.eu1.make.com/d2bftkhlh5qkirvb5uia3nvhuv4ebxze"; 
 
         const params = new URLSearchParams(window.location.search);
         const storeId = params.get('store_id');
         const network = params.get('net');
 
-        // Regex pour extraire les hashtags
-        function extractHashtags(text) {
-            const hashtags = text.match(/#[a-z0-9_]+/gi);
-            return hashtags ? hashtags.join(' ') : '';
-        }
-
-        // Fonction pour nettoyer le texte des hashtags (optionnel, sinon on garde tout)
-        function removeHashtags(text) {
-            // On peut choisir de laisser les tags dans le texte ou pas. 
-            // Ici je laisse le texte brut pour éviter de casser la phrase.
-            return text; 
-        }
+        const networksPretty = {
+            'instagram': 'Instagram', 'facebook': 'Facebook', 'twitter': 'X / Twitter',
+            'linkedin': 'LinkedIn', 'tiktok': 'TikTok', 'youtube': 'YouTube',
+            'pinterest': 'Pinterest', 'google': 'Google', 'threads': 'Threads', 'snapchat': 'Snapchat'
+        };
 
         function isVideo(url) {
             if (!url) return false;
@@ -254,7 +233,10 @@
             try {
                 const response = await fetch(`${API_URL}?store_id=${storeId}`);
                 const data = await response.json();
-                const netData = data.networks && data.networks[network] ? data.networks[network] : null;
+                
+                // Récupération des données du réseau spécifique
+                // Si 'title' ou 'tags' n'existent pas encore dans le JSON Make, on met du texte vide par défaut.
+                const netData = data.networks && data.networks[network] ? data.networks[network] : {};
 
                 // 1. MEDIA
                 const mediaUrl = data.media_url;
@@ -273,46 +255,4 @@
                     imgElement.src = mediaUrl;
                 }
 
-                // 2. TEXTE
-                let rawText = netData ? netData.caption : "Aucun texte.";
-                document.getElementById('post-text').innerText = rawText;
-
-                // 3. HASHTAGS (Extraction pour la boite séparée)
-                const tags = extractHashtags(rawText);
-                const hashBox = document.getElementById('post-hashtags');
-                
-                if(tags.length > 0) {
-                    hashBox.innerText = tags;
-                    hashBox.style.display = 'block';
-                } else {
-                    hashBox.style.display = 'none';
-                }
-
-                // 4. STATS (ROI & OBJ)
-                document.getElementById('stat-objective').innerText = netData ? netData.objective : "-";
-                document.getElementById('stat-roi').innerText = netData ? netData.roi : "-";
-
-                // AFFICHAGE
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('app').style.display = 'flex';
-                document.getElementById('footer').style.display = 'flex';
-
-            } catch (error) {
-                console.error(error);
-                document.getElementById('loader').innerHTML = "<p style='text-align:center'>Erreur de chargement.</p>";
-            }
-        }
-
-        function closeWindow() {
-            window.close();
-            document.body.innerHTML = "<div style='display:flex;justify-content:center;align-items:center;height:100vh;background:#F5F7FA;color:#1A202C;'><h1>C'est validé ! ✅</h1></div>";
-        }
-
-        if(storeId && network) {
-            loadData();
-        } else {
-            document.getElementById('loader').innerHTML = "<p style='text-align:center'>Lien incomplet.</p>";
-        }
-    </script>
-</body>
-</html>
+                //
