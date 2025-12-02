@@ -62,7 +62,7 @@
             font-weight: 600;
         }
 
-        /* --- 2. BOITE DESCRIPTION & HASHTAGS --- */
+        /* --- 2. BOITE DESCRIPTION --- */
         .card-text {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -76,17 +76,22 @@
             color: #2D3748;
             white-space: pre-wrap;
         }
-        .hashtags-box {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #EDF2F7;
+
+        /* --- 3. BOITE HASHTAGS --- */
+        .card-hashtags {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 15px 25px;
             color: #3182CE; /* Bleu hashtag */
             font-weight: 600;
             font-size: 14px;
             line-height: 1.5;
+            animation: slideUp 0.45s ease-out;
+            display: none; /* Caché par défaut si vide */
         }
 
-        /* --- 3. BOITE MEDIA (PHOTO/VIDEO) --- */
+        /* --- 4. BOITE MEDIA (PHOTO/VIDEO) --- */
         .media-container {
             width: 100%;
             border-radius: var(--radius);
@@ -103,7 +108,7 @@
             display: block;
         }
 
-        /* --- 4. BOITE ROI & OBJECTIFS --- */
+        /* --- 5. BOITE ROI & OBJECTIFS --- */
         .card-stats {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -184,8 +189,9 @@
 
         <div class="card-text">
             <div id="post-text" class="caption-content"></div>
-            <div id="post-hashtags" class="hashtags-box"></div> 
         </div>
+
+        <div id="post-hashtags" class="card-hashtags"></div>
 
         <div class="media-container">
             <img id="post-image" src="" alt="Post" style="display:none;">
@@ -212,3 +218,101 @@
         </div>
 
     </div>
+
+    <div class="footer-action" id="footer" style="display:none;">
+        <button class="btn-validate" onclick="closeWindow()">Valider & Fermer</button>
+    </div>
+
+    <script>
+        // 👇👇 TON URL MAKE (J'AI BIEN MIS LA BONNE CETTE FOIS) 👇👇
+        const API_URL = "https://hook.eu1.make.com/d2bftkhlh5qkirvb5uia3nvhuv4ebxze"; 
+
+        const params = new URLSearchParams(window.location.search);
+        const storeId = params.get('store_id');
+        const network = params.get('net');
+
+        // Regex pour extraire les hashtags
+        function extractHashtags(text) {
+            const hashtags = text.match(/#[a-z0-9_]+/gi);
+            return hashtags ? hashtags.join(' ') : '';
+        }
+
+        // Fonction pour nettoyer le texte des hashtags (optionnel, sinon on garde tout)
+        function removeHashtags(text) {
+            // On peut choisir de laisser les tags dans le texte ou pas. 
+            // Ici je laisse le texte brut pour éviter de casser la phrase.
+            return text; 
+        }
+
+        function isVideo(url) {
+            if (!url) return false;
+            const lowerUrl = url.toLowerCase();
+            return lowerUrl.includes('.mp4') || lowerUrl.includes('.mov') || lowerUrl.includes('video');
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_URL}?store_id=${storeId}`);
+                const data = await response.json();
+                const netData = data.networks && data.networks[network] ? data.networks[network] : null;
+
+                // 1. MEDIA
+                const mediaUrl = data.media_url;
+                const imgElement = document.getElementById('post-image');
+                const vidElement = document.getElementById('post-video');
+                const vidSource = document.getElementById('video-source');
+
+                if (isVideo(mediaUrl)) {
+                    imgElement.style.display = 'none';
+                    vidElement.style.display = 'block';
+                    vidSource.src = mediaUrl;
+                    vidElement.load();
+                } else {
+                    vidElement.style.display = 'none';
+                    imgElement.style.display = 'block';
+                    imgElement.src = mediaUrl;
+                }
+
+                // 2. TEXTE
+                let rawText = netData ? netData.caption : "Aucun texte.";
+                document.getElementById('post-text').innerText = rawText;
+
+                // 3. HASHTAGS (Extraction pour la boite séparée)
+                const tags = extractHashtags(rawText);
+                const hashBox = document.getElementById('post-hashtags');
+                
+                if(tags.length > 0) {
+                    hashBox.innerText = tags;
+                    hashBox.style.display = 'block';
+                } else {
+                    hashBox.style.display = 'none';
+                }
+
+                // 4. STATS (ROI & OBJ)
+                document.getElementById('stat-objective').innerText = netData ? netData.objective : "-";
+                document.getElementById('stat-roi').innerText = netData ? netData.roi : "-";
+
+                // AFFICHAGE
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('app').style.display = 'flex';
+                document.getElementById('footer').style.display = 'flex';
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loader').innerHTML = "<p style='text-align:center'>Erreur de chargement.</p>";
+            }
+        }
+
+        function closeWindow() {
+            window.close();
+            document.body.innerHTML = "<div style='display:flex;justify-content:center;align-items:center;height:100vh;background:#F5F7FA;color:#1A202C;'><h1>C'est validé ! ✅</h1></div>";
+        }
+
+        if(storeId && network) {
+            loadData();
+        } else {
+            document.getElementById('loader').innerHTML = "<p style='text-align:center'>Lien incomplet.</p>";
+        }
+    </script>
+</body>
+</html>
