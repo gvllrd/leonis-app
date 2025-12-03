@@ -25,7 +25,7 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            padding-bottom: 100px; /* Espace pour le bouton */
+            padding-bottom: 100px;
         }
 
         #app {
@@ -37,7 +37,7 @@
             gap: 20px;
         }
 
-        /* 1. TITRE (ACCROCHE) */
+        /* 1. TITRE */
         .card-header {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -62,7 +62,7 @@
             font-weight: 700;
         }
 
-        /* 2. DESCRIPTION */
+        /* 2. TEXTE */
         .card-text {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -77,17 +77,17 @@
             white-space: pre-wrap;
         }
 
-        /* 3. HASHTAGS (BOITE SEPARÉE) */
+        /* 3. HASHTAGS */
         .card-tags {
             background: transparent;
             padding: 0 10px;
-            color: #3182CE; /* Bleu Hashtag */
+            color: #3182CE;
             font-weight: 600;
             font-size: 14px;
             line-height: 1.5;
             animation: slideUp 0.5s ease-out;
             text-align: center;
-            display: none; /* Caché si vide */
+            display: none;
         }
 
         /* 4. MEDIA */
@@ -211,7 +211,7 @@
 
     <script>
         // 👇👇 TON URL MAKE (Scénario 3) 👇👇
-        const API_URL = "https://hook.eu1.make.com/d2bftkhlh5qkirvb5uia3nvhuv4ebxze";
+        const API_URL = "https://hook.eu1.make.com/d2bftkhlh5qkirvb5uia3nvhuv4ebxze"; 
 
         const params = new URLSearchParams(window.location.search);
         const storeId = params.get('store_id');
@@ -234,8 +234,6 @@
                 const response = await fetch(`${API_URL}?store_id=${storeId}`);
                 const data = await response.json();
                 
-                // Récupération des données du réseau spécifique
-                // Si 'title' ou 'tags' n'existent pas encore dans le JSON Make, on met du texte vide par défaut.
                 const netData = data.networks && data.networks[network] ? data.networks[network] : {};
 
                 // 1. MEDIA
@@ -255,4 +253,44 @@
                     imgElement.src = mediaUrl;
                 }
 
-                //
+                // 2. TEXTE & TITRES
+                document.getElementById('post-title').innerText = netData.title || networksPretty[network];
+                document.getElementById('network-subtitle').innerText = "Aperçu " + (networksPretty[network] || network);
+                document.getElementById('post-text').innerText = netData.caption || "Texte en cours de génération...";
+
+                // 3. HASHTAGS
+                const tagsBox = document.getElementById('post-hashtags');
+                if (netData.tags && netData.tags.length > 2) {
+                    tagsBox.innerText = netData.tags;
+                    tagsBox.style.display = 'block';
+                } else {
+                    tagsBox.style.display = 'none';
+                }
+
+                // 4. STATS
+                document.getElementById('stat-objective').innerText = netData.objective || "-";
+                document.getElementById('stat-roi').innerText = netData.roi || "-";
+
+                // AFFICHAGE
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('app').style.display = 'flex';
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loader').innerHTML = "<p style='text-align:center; padding:20px;'>Erreur de chargement.<br>Vérifie ton ID boutique.</p>";
+            }
+        }
+
+        function closeWindow() {
+            window.close();
+            document.body.innerHTML = "<div style='display:flex;justify-content:center;align-items:center;height:100vh;background:#F5F7FA;color:#1A202C;'><h1>C'est validé ! ✅</h1></div>";
+        }
+
+        if(storeId && network) {
+            loadData();
+        } else {
+            document.getElementById('loader').innerHTML = "<p style='text-align:center'>Lien incomplet.</p>";
+        }
+    </script>
+</body>
+</html>
