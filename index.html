@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Validation Post</title>
+    <title>Éditeur Leonis</title>
     <style>
         /* --- DESIGN SYSTEM "PURE WHITE" --- */
         :root {
@@ -11,6 +11,7 @@
             --card-bg: #FFFFFF;
             --text-dark: #1A202C;
             --text-grey: #718096;
+            --accent: #2B6CB0; /* Bleu Leonis */
             --radius: 24px;
             --shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.08);
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -25,7 +26,7 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            padding-bottom: 100px;
+            padding-bottom: 100px; /* Place pour le bouton save */
         }
 
         #app {
@@ -37,22 +38,30 @@
             gap: 20px;
         }
 
-        /* 1. TITRE */
+        /* 1. TITRE ÉDITABLE (Sans bordure noire) */
         .card-header {
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             padding: 25px;
             text-align: center;
-            animation: slideUp 0.3s ease-out;
-            border-left: 5px solid #000;
+            /* Border-left supprimé pour un look clean */
         }
-        .card-header h1 {
+        .input-title {
+            width: 100%;
+            border: none;
             font-size: 22px;
-            margin: 0;
             font-weight: 800;
-            line-height: 1.3;
+            text-align: center;
+            font-family: var(--font-main);
+            color: var(--text-dark);
+            background: transparent;
+            outline: none;
+            border-bottom: 2px solid transparent;
+            transition: 0.3s;
         }
+        .input-title:focus { border-bottom: 2px solid var(--accent); }
+
         .card-header p {
             font-size: 11px;
             color: var(--text-grey);
@@ -62,32 +71,42 @@
             font-weight: 700;
         }
 
-        /* 2. TEXTE */
+        /* 2. TEXTE ÉDITABLE (TEXTAREA) */
         .card-text {
             background: var(--card-bg);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 25px;
-            animation: slideUp 0.4s ease-out;
+            padding: 20px;
         }
-        .caption-content {
+        textarea.caption-content {
+            width: 100%;
+            min-height: 200px;
+            border: none;
+            resize: none;
             font-size: 16px;
             line-height: 1.6;
             color: #2D3748;
-            white-space: pre-wrap;
+            font-family: var(--font-main);
+            outline: none;
+            background: transparent;
+            display: block;
         }
+        textarea.caption-content:focus { background: #FAFAFA; }
 
-        /* 3. HASHTAGS */
+        /* 3. HASHTAGS ÉDITABLES */
         .card-tags {
             background: transparent;
             padding: 0 10px;
+        }
+        .input-tags {
+            width: 100%;
+            border: none;
+            background: transparent;
             color: #3182CE;
             font-weight: 600;
             font-size: 14px;
-            line-height: 1.5;
-            animation: slideUp 0.5s ease-out;
             text-align: center;
-            display: none;
+            outline: none;
         }
 
         /* 4. MEDIA */
@@ -98,7 +117,6 @@
             box-shadow: var(--shadow);
             background: #000;
             position: relative;
-            animation: scaleIn 0.5s ease-out;
             min-height: 250px;
             display: flex;
             justify-content: center;
@@ -120,26 +138,22 @@
             padding: 20px;
             display: flex;
             justify-content: space-between;
-            animation: slideUp 0.6s ease-out;
         }
         .stat-item { text-align: center; width: 48%; }
         .stat-label { font-size: 10px; color: var(--text-grey); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 5px;}
         .stat-value { font-size: 14px; font-weight: 700; color: var(--text-dark); }
 
-        /* BOUTON */
+        /* BOUTON SAVE (Épuré) */
         .footer-action {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
+            bottom: 0; left: 0; width: 100%;
             padding: 20px;
             background: rgba(245, 247, 250, 0.95);
             backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
+            display: flex; justify-content: center;
             z-index: 100;
         }
-        .btn-validate {
+        .btn-save {
             background-color: var(--text-dark);
             color: #FFF;
             border: none;
@@ -151,7 +165,20 @@
             max-width: 440px;
             cursor: pointer;
             box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transition: transform 0.1s;
         }
+        .btn-save:active { transform: scale(0.98); }
+        .btn-save.loading { opacity: 0.7; pointer-events: none; }
+
+        /* TOAST NOTIF */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 101;
+            bottom: 100px; left: 50%; transform: translateX(-50%); font-size: 14px;
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 100px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 100px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
         /* LOADER */
         .loader-container {
@@ -176,15 +203,17 @@
     <div id="app" style="display:none;">
         
         <div class="card-header">
-            <h1 id="post-title">...</h1>
-            <p id="network-subtitle">Titre du Post</p>
+            <input type="text" id="post-title" class="input-title" value="...">
+            <p id="network-subtitle">Titre du Post (Modifier)</p>
         </div>
 
         <div class="card-text">
-            <div id="post-text" class="caption-content"></div>
+            <textarea id="post-text" class="caption-content"></textarea>
         </div>
 
-        <div id="post-hashtags" class="card-tags"></div>
+        <div class="card-tags">
+            <input type="text" id="post-hashtags" class="input-tags" value="">
+        </div>
 
         <div class="media-container">
             <img id="post-image" src="" alt="Post" style="display:none;">
@@ -203,15 +232,24 @@
                 <span id="stat-roi" class="stat-value">...</span>
             </div>
         </div>
+        
+        <div style="text-align:center; font-size:12px; color:#A0AEC0; margin-top:0px;">
+            Modifie le texte ci-dessus et enregistre 👇
+        </div>
     </div>
 
     <div class="footer-action">
-        <button class="btn-validate" onclick="closeWindow()">Valider & Fermer</button>
+        <button id="save-btn" class="btn-save" onclick="saveChanges()">Enregistrer</button>
     </div>
 
+    <div id="toast">✅ Modifications enregistrées !</div>
+
     <script>
-        // 👇👇 TON URL MAKE (Scénario 3) 👇👇
-        const API_URL = "https://hook.eu1.make.com/d2bftkhlh5qkirvb5uia3nvhuv4ebxze"; 
+        // 👇 URL SCÉNARIO 3 (Lecture) 👇
+        const READ_API = "https://hook.eu1.make.com/d2bftkhlh5qkirvb5uia3nvhuv4ebxze"; 
+        
+        // 👇 URL SCÉNARIO 4 (Écriture - ÉDITION) 👇
+        const UPDATE_API = "https://hook.eu1.make.com/kp2xf5cs2xicyige2nytp1h7iwjf4scw"; 
 
         const params = new URLSearchParams(window.location.search);
         const storeId = params.get('store_id');
@@ -231,7 +269,7 @@
 
         async function loadData() {
             try {
-                const response = await fetch(`${API_URL}?store_id=${storeId}`);
+                const response = await fetch(`${READ_API}?store_id=${storeId}`);
                 const data = await response.json();
                 
                 const netData = data.networks && data.networks[network] ? data.networks[network] : {};
@@ -253,21 +291,13 @@
                     imgElement.src = mediaUrl;
                 }
 
-                // 2. TEXTE & TITRES
-                document.getElementById('post-title').innerText = netData.title || networksPretty[network];
-                document.getElementById('network-subtitle').innerText = "Aperçu " + (networksPretty[network] || network);
-                document.getElementById('post-text').innerText = netData.caption || "Texte en cours de génération...";
+                // 2. REMPLIR LES CHAMPS ÉDITABLES
+                document.getElementById('post-title').value = netData.title || networksPretty[network];
+                document.getElementById('network-subtitle').innerText = "Modifier " + (networksPretty[network] || network);
+                document.getElementById('post-text').value = netData.caption || "";
+                document.getElementById('post-hashtags').value = netData.tags || "";
 
-                // 3. HASHTAGS
-                const tagsBox = document.getElementById('post-hashtags');
-                if (netData.tags && netData.tags.length > 2) {
-                    tagsBox.innerText = netData.tags;
-                    tagsBox.style.display = 'block';
-                } else {
-                    tagsBox.style.display = 'none';
-                }
-
-                // 4. STATS
+                // 3. STATS
                 document.getElementById('stat-objective').innerText = netData.objective || "-";
                 document.getElementById('stat-roi').innerText = netData.roi || "-";
 
@@ -281,9 +311,43 @@
             }
         }
 
-        function closeWindow() {
-            window.close();
-            document.body.innerHTML = "<div style='display:flex;justify-content:center;align-items:center;height:100vh;background:#F5F7FA;color:#1A202C;'><h1>C'est validé ! ✅</h1></div>";
+        async function saveChanges() {
+            const btn = document.getElementById('save-btn');
+            btn.innerHTML = "Enregistrement...";
+            btn.classList.add('loading');
+
+            const payload = {
+                store_id: storeId,
+                network: network,
+                title: document.getElementById('post-title').value,
+                caption: document.getElementById('post-text').value,
+                tags: document.getElementById('post-hashtags').value
+            };
+
+            try {
+                // Envoi vers Make Scénario 4
+                await fetch(UPDATE_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                // Succès
+                showToast();
+                btn.innerHTML = "Enregistrer";
+                btn.classList.remove('loading');
+
+            } catch (e) {
+                alert("Erreur lors de la sauvegarde. Vérifie ta connexion.");
+                btn.innerHTML = "Réessayer";
+                btn.classList.remove('loading');
+            }
+        }
+
+        function showToast() {
+            var x = document.getElementById("toast");
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }
 
         if(storeId && network) {
